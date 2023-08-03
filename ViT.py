@@ -25,8 +25,10 @@ import timm
 from pprint import pprint
 import pickle
 
-# Training settings
+#ハイパーパラメータの設定
+#エポック数
 epochs = 8
+# 学習率
 lr = 5e-6
 gamma = 0.7
 seed = 42
@@ -38,6 +40,7 @@ img = img.astype('float32')
 img /= 255.0
 img = img[None, ...]
 
+# SEEDの設定
 def seed_everything(seed):
     random.seed(seed)
     os.environ['PYTHONHASHSEED'] = str(seed)
@@ -50,6 +53,7 @@ def seed_everything(seed):
 seed_everything(seed)
 device = 'cuda'
 
+#学習，検証データの読み込み
 train_dataset_dir = Path('data/train')
 val_dataset_dir = Path('data/val')
 
@@ -58,8 +62,10 @@ files = glob.glob('data/*/*/*.jpeg')
 
 train_transforms = transforms.Compose(
     [
+        #リサイズ
         transforms.Resize((224, 224)),
         transforms.RandomResizedCrop(224),
+        #左右反転でのデータ拡張
         transforms.RandomHorizontalFlip(),
         # transforms.ColorJitter(brightness=0.5, contrast=0.5, saturation=0.5),
         # transforms.RandomGrayscale(0.9),
@@ -77,12 +83,14 @@ val_transforms = transforms.Compose(
     ]
 )
 
+#データセットの作成
 train_data = datasets.ImageFolder(train_dataset_dir,train_transforms)
 valid_data = datasets.ImageFolder(val_dataset_dir, val_transforms)
 
 train_loader = DataLoader(dataset = train_data, batch_size=batch, shuffle=True)
 valid_loader = DataLoader(dataset = valid_data, batch_size=batch, shuffle=True)
 
+#timmからViTモデルのインポート
 model = timm.create_model('vit_base_patch16_224.augreg_in21k', pretrained=True, num_classes=14)
 model.to("cuda:0")
 
@@ -98,6 +106,7 @@ val_acc_list = []
 train_loss_list = []
 val_loss_list = []
 
+#学習
 for epoch in range(epochs):
     epoch_loss = 0
     epoch_accuracy = 0
@@ -141,12 +150,14 @@ for epoch in range(epochs):
 
     device2 = torch.device('cpu')
 
+#モデルの保存
 torch.save(model, 'model.pth')
 train_acc = []
 train_loss = []
 val_acc = []
 val_loss = []
 
+#検証
 for i in range(epochs):
     train_acc2 = train_acc_list[i].to(device2)
     train_acc3 = train_acc2.clone().numpy()

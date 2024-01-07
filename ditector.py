@@ -10,6 +10,9 @@ img = img.astype('float32')
 img /= 255.0
 img = img[None, ...]
 
+model = torch.load('model.pth')
+model.eval()
 
-learn3 = load_learner('model.pkl')
-learn3.predict(img)
+output = model(img)
+print(output.argmax(dim=1))
+

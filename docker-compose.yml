@@ -1,0 +1,15 @@
+version: "3.0"
+
+services:
+  api:
+    container_name: "vege-api"
+    volumes:
+    - ./app:/app
+    build: .
+    ports:
+      - 8080:8080
+    image: diamond.u-gakugei.ac.jp/vege-api:prod
+    environment:
+            OMP_NUM_THREADS: 1
+            MKL_NUM_THREADS: 1
+            NUMEXPR_NUM_THREADS: 1
